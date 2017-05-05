@@ -12,7 +12,8 @@ function url_parser(url_format_string, url_instance) {
 
   for (x = 0; x < url_format_string_arr.length; x++) {
     if (url_format_string_arr[x].charAt(0) == ':') {
-      parsedOutput[url_format_string_arr[x].substring(1)] = url_instance_string_arr[x]
+      var val = isNaN(Number(url_instance_string_arr[x])) ? url_instance_string_arr[x] : Number(url_instance_string_arr[x]);
+      parsedOutput[url_format_string_arr[x].substring(1)] = val
     }
   }
 
@@ -20,13 +21,14 @@ function url_parser(url_format_string, url_instance) {
     var arr = url_instance_arr[1].split('&');
     for (x = 0; x < arr.length; x++) {
       var spl = arr[x].split('=');
+      var val = isNaN(Number(spl[1])) ? spl[1] : Number(spl[1]);
       if (spl.length == 2) {
         if (typeof parsedOutput[spl[0]] === 'array') {
-          parsedOutput[spl[0]].push(spl[1]);
+          parsedOutput[spl[0]].push(val);
         } else if (typeof parsedOutput[spl[0]] === 'string') {
-          parsedOutput[spl[0]] = [parsedOutput[spl[0]], spl[1]]
+          parsedOutput[spl[0]] = [parsedOutput[spl[0]], val]
         } else {
-          parsedOutput[spl[0]] = spl[1];
+          parsedOutput[spl[0]] = val;
         }
       }
     }
