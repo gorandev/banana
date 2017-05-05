@@ -1,3 +1,5 @@
+var _ = require('underscore')._;
+
 var url_format_string = "/:version/api/:collection/:id";
 var url_instance = "/6/api/listings/3?sort=desc&limit=10"
 
@@ -5,28 +7,39 @@ console.log(url_parser(url_format_string, url_instance));
 
 function url_parser(url_format_string, url_instance) {
   var parsedOutput = {};
+  var [url_instance, url_params] = url_instance.split('?');
 
-  var url_format_string_arr = url_format_string.split('/');
-  var url_instance_arr = url_instance.split('?');
-  var url_instance_string_arr = url_instance_arr[0].split('/');
-
-  for (x = 0; x < url_format_string_arr.length; x++) {
-    if (url_format_string_arr[x].charAt(0) == ':') {
-      parsedOutput[url_format_string_arr[x].substring(1)] = number_if_number(url_instance_string_arr[x])
+  _.each(
+    url_format_string.split('/'),
+    save_url_parts_to_parsed_output,
+    { 
+      parsedOutput: parsedOutput,
+      url_instance_arr: url_instance.split('/')
     }
-  }
+  );
 
-  if (url_instance_arr.length > 1) {
-    var arr = url_instance_arr[1].split('&');
-    for (x = 0; x < arr.length; x++) {
-      [key, val] = arr[x].split('=');
-      if (key && val) {
-        save_as_array_if_existing(parsedOutput, key, number_if_number(val));
-      }
+  _.each(
+    url_params.split('&'),
+    save_url_params_to_parsed_output,
+    {
+      parsedOutput: parsedOutput
     }
-  }
+  );
 
   return parsedOutput;
+}
+
+function save_url_parts_to_parsed_output(element, index, list) {
+  if (element.charAt(0) == ':') {
+    this.parsedOutput[element.substring(1)] = number_if_number(this.url_instance_arr[index]);
+  }  
+}
+
+function save_url_params_to_parsed_output(element, index, list) {
+  var [key, val] = element.split('=');
+  if (key && val) {
+    save_as_array_if_existing(this.parsedOutput, key, number_if_number(val));
+  }
 }
 
 function number_if_number(val) {
